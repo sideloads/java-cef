@@ -37,7 +37,7 @@ public class CefApp extends CefAppHandlerAdapter {
         public final int CHROME_VERSION_PATCH;
 
         private CefVersion(int jcefCommitNo, int cefMajor, int cefMinor, int cefPatch,
-                int cefCommitNo, int chrMajor, int chrMin, int chrBuild, int chrPatch) {
+                           int cefCommitNo, int chrMajor, int chrMin, int chrBuild, int chrPatch) {
             JCEF_COMMIT_NUMBER = jcefCommitNo;
 
             CEF_VERSION_MAJOR = cefMajor;
@@ -101,6 +101,12 @@ public class CefApp extends CefAppHandlerAdapter {
          * message loop is running. You can use all classes and methods of JCEF now.
          */
         INITIALIZED,
+
+        /**
+         * CEF initialization has failed (for example due to a second process using
+         * the same root_cache_path).
+         */
+        INITIALIZATION_FAILED,
 
         /**
          * CefApp is in its shutdown process. All CefClients and CefBrowser
@@ -384,7 +390,11 @@ public class CefApp extends CefAppHandlerAdapter {
             settings.locales_dir_path = localesPath.normalize().toAbsolutePath().toString();
         }
 
-        if (N_Initialize(appHandler_, settings)) setState(CefAppState.INITIALIZED);
+        if (N_Initialize(appHandler_, settings)) {
+            setState(CefAppState.INITIALIZED);
+        } else {
+            setState(CefAppState.INITIALIZATION_FAILED);
+        }
     }
 
     /**

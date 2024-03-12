@@ -40,6 +40,7 @@ import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Vector;
+import java.util.function.Consumer;
 
 import javax.swing.SwingUtilities;
 
@@ -85,16 +86,20 @@ public class CefClient extends CefClientHandler
 
     // CefClientHandler
 
-    public CefBrowser createBrowser(
-            String url, boolean isTransparent) {
-        return createBrowser(url, isTransparent, null);
-    }
-
-    public CefBrowser createBrowser(String url, boolean isTransparent,
+    public CefBrowser createBrowser(String url, boolean isOffscreenRendered, boolean isTransparent,
                                     CefRequestContext context) {
         if (isDisposed_)
             throw new IllegalStateException("Can't create browser. CefClient is disposed");
-        return CefBrowserFactory.create(this, url, isTransparent, context);
+        return CefBrowserFactory.create(
+                this, url, isOffscreenRendered, isTransparent, context, null);
+    }
+
+    public CefBrowser createBrowser(String url, boolean isOffscreenRendered, boolean isTransparent,
+                                    CefRequestContext context, CefBrowserSettings settings) {
+        if (isDisposed_)
+            throw new IllegalStateException("Can't create browser. CefClient is disposed");
+        return CefBrowserFactory.create(
+                this, url, isOffscreenRendered, isTransparent, context, settings);
     }
 
     @Override
@@ -125,7 +130,7 @@ public class CefClient extends CefClientHandler
     protected CefDisplayHandler getDisplayHandler() {
         return this;
     }
-    
+
     @Override
     protected CefAudioHandler getAudioHandler() {
         return this;
@@ -261,6 +266,12 @@ public class CefClient extends CefClientHandler
     public void onTitleChange(CefBrowser browser, String title) {
         if (displayHandler_ != null && browser != null)
             displayHandler_.onTitleChange(browser, title);
+    }
+
+    @Override
+    public void OnFullscreenModeChange(CefBrowser browser, boolean fullscreen) {
+        if (displayHandler_ != null && browser != null)
+            displayHandler_.OnFullscreenModeChange(browser, fullscreen);
     }
 
     @Override
@@ -688,6 +699,15 @@ public class CefClient extends CefClientHandler
     }
 
     @Override
+    public void addOnPaintListener(Consumer<CefPaintEvent> listener) {}
+
+    @Override
+    public void setOnPaintListener(Consumer<CefPaintEvent> listener) {}
+
+    @Override
+    public void removeOnPaintListener(Consumer<CefPaintEvent> listener) {}
+
+    @Override
     public boolean startDragging(CefBrowser browser, CefDragData dragData, int mask, int x, int y) {
         if (browser == null) return false;
 
@@ -791,39 +811,39 @@ public class CefClient extends CefClientHandler
     public boolean getScreenInfo(CefBrowser arg0, CefScreenInfo arg1) {
         return false;
     }
-    
+
     // CefAudioHandler
-    
+
     public CefClient addAudioHandler(CefAudioHandler handler) {
         if (audioHandler_ == null) audioHandler_ = handler;
         return this;
     }
-    
+
     public void removeAudioHandler() {
         audioHandler_ = null;
     }
-    
+
     @Override
     public boolean getAudioParameters(CefBrowser browser, CefAudioParameters params) {
         if (audioHandler_ != null) return audioHandler_.getAudioParameters(browser, params);
         return false;
     }
-    
+
     @Override
     public void onAudioStreamStarted(CefBrowser browser, CefAudioParameters params, int channels) {
         if (audioHandler_ != null) audioHandler_.onAudioStreamStarted(browser, params, channels);
     }
-    
+
     @Override
     public void onAudioStreamPacket(CefBrowser browser, float[] data, int frames, long pts) {
         if (audioHandler_ != null) audioHandler_.onAudioStreamPacket(browser, data, frames, pts);
     }
-    
+
     @Override
     public void onAudioStreamStopped(CefBrowser browser) {
         if (audioHandler_ != null) audioHandler_.onAudioStreamStopped(browser);
     }
-    
+
     @Override
     public void onAudioStreamError(CefBrowser browser, String text) {
         if (audioHandler_ != null) audioHandler_.onAudioStreamError(browser, text);

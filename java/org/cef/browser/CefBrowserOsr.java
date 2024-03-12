@@ -17,6 +17,11 @@ import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.function.Consumer;
 
 /**
  * This class represents an off-screen rendered browser.
@@ -32,14 +37,21 @@ public class CefBrowserOsr extends CefBrowser_N implements CefRenderHandler {
     private int depth_per_component = 8;
     private boolean isTransparent_;
 
-    public CefBrowserOsr(CefClient client, String url, boolean transparent, CefRequestContext context) {
-        this(client, url, transparent, context, null, null);
+    private CopyOnWriteArrayList<Consumer<CefPaintEvent>> onPaintListeners =
+            new CopyOnWriteArrayList<>();
+
+    CefBrowserOsr(CefClient client, String url, boolean transparent, CefRequestContext context,
+                  CefBrowserSettings settings) {
+        this(client, url, transparent, context, null, null, settings);
     }
 
     private CefBrowserOsr(CefClient client, String url, boolean transparent,
-            CefRequestContext context, CefBrowserOsr parent, Point inspectAt) {
-        super(client, url, context, parent, inspectAt);
+                          CefRequestContext context, CefBrowserOsr parent, Point inspectAt,
+                          CefBrowserSettings settings) {
+        super(client, url, context, parent, inspectAt, settings);
         isTransparent_ = transparent;
+        renderer_ = new CefRenderer(transparent);
+        createGLCanvas();
     }
 
     @Override
@@ -77,6 +89,22 @@ public class CefBrowserOsr extends CefBrowser_N implements CefRenderHandler {
 
     @Override
     public void onPopupSize(CefBrowser browser, Rectangle size) {
+    }
+
+    @Override
+    public void addOnPaintListener(Consumer<CefPaintEvent> listener) {
+        onPaintListeners.add(listener);
+    }
+
+    @Override
+    public void setOnPaintListener(Consumer<CefPaintEvent> listener) {
+        onPaintListeners.clear();
+        onPaintListeners.add(listener);
+    }
+
+    @Override
+    public void removeOnPaintListener(Consumer<CefPaintEvent> listener) {
+        onPaintListeners.remove(listener);
     }
 
     @Override

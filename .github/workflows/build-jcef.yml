@@ -11,7 +11,7 @@ jobs:
       matrix:
         platform: [amd64, arm64]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Install deps and build
         run: |
           sudo apt update
@@ -40,7 +40,7 @@ jobs:
       matrix:
         platform: [amd64, arm64]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: ilammy/msvc-dev-cmd@v1
       - name: Build
         run: |
@@ -60,4 +60,36 @@ jobs:
           path: |
             jcef_build/windows_${{ matrix.platform }}.tar.gz
             jcef_build/windows_${{ matrix.platform }}.tar.gz.sha256
+          if-no-files-found: error
+
+  java-cef-macos:
+    runs-on: [macos-12]
+    strategy:
+      matrix:
+        platform: [amd64, arm64]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+      - run: |
+          brew install ninja
+          brew install python
+          brew install coreutils
+          sudo xcode-select --switch /Applications/Xcode_13.1.app
+          mkdir jcef_build && cd jcef_build
+          cmake -G "Ninja" -DPROJECT_ARCH=${{ matrix.platform }} -DCMAKE_BUILD_TYPE=Release ..
+          ninja -j4
+          mv native/Release macos_${{ matrix.platform }}
+          tar -czf macos_${{ matrix.platform }}.tar.gz macos_${{ matrix.platform }}
+          sha256sum macos_${{ matrix.platform }}.tar.gz > macos_${{ matrix.platform }}.tar.gz.sha256
+
+      - uses: actions/upload-artifact@v3
+        if: ${{ github.ref == 'refs/heads/master' }}
+        with:
+          name: 'macos_${{ matrix.platform }}'
+          path: |
+            jcef_build/macos_${{ matrix.platform }}.tar.gz
+            jcef_build/macos_${{ matrix.platform }}.tar.gz.sha256
           if-no-files-found: error

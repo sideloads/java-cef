@@ -4,45 +4,21 @@
 
 package org.cef;
 
-import org.cef.browser.CefBrowser;
-import org.cef.browser.CefBrowserFactory;
-import org.cef.browser.CefFrame;
-import org.cef.browser.CefMessageRouter;
-import org.cef.browser.CefRequestContext;
-import org.cef.callback.CefAuthCallback;
-import org.cef.callback.CefBeforeDownloadCallback;
-import org.cef.callback.CefCallback;
-import org.cef.callback.CefContextMenuParams;
-import org.cef.callback.CefDownloadItem;
-import org.cef.callback.CefDownloadItemCallback;
-import org.cef.callback.CefDragData;
-import org.cef.callback.CefFileDialogCallback;
-import org.cef.callback.CefJSDialogCallback;
-import org.cef.callback.CefMenuModel;
-import org.cef.callback.CefPrintDialogCallback;
-import org.cef.callback.CefPrintJobCallback;
+import org.cef.browser.*;
+import org.cef.callback.*;
 import org.cef.handler.*;
 import org.cef.misc.BoolRef;
 import org.cef.misc.CefAudioParameters;
 import org.cef.misc.CefPrintSettings;
-import org.cef.misc.StringRef;
 import org.cef.network.CefRequest;
 import org.cef.network.CefRequest.TransitionType;
-import org.cef.network.CefResponse;
-import org.cef.network.CefURLRequest;
 
-import java.awt.Dimension;
-import java.awt.Point;
-import java.awt.Rectangle;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
+import java.awt.*;
 import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Vector;
 import java.util.function.Consumer;
-
-import javax.swing.SwingUtilities;
 
 /**
  * Client that owns a browser and renderer.

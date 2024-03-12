@@ -4,6 +4,7 @@
 
 package org.cef.browser;
 
+import org.cef.CefBrowserSettings;
 import org.cef.CefClient;
 import org.cef.callback.CefDragData;
 import org.cef.handler.CefRenderHandler;
@@ -18,9 +19,6 @@ import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 
 /**
@@ -40,8 +38,8 @@ public class CefBrowserOsr extends CefBrowser_N implements CefRenderHandler {
     private CopyOnWriteArrayList<Consumer<CefPaintEvent>> onPaintListeners =
             new CopyOnWriteArrayList<>();
 
-    CefBrowserOsr(CefClient client, String url, boolean transparent, CefRequestContext context,
-                  CefBrowserSettings settings) {
+    protected CefBrowserOsr(CefClient client, String url, boolean transparent, CefRequestContext context,
+                            CefBrowserSettings settings) {
         this(client, url, transparent, context, null, null, settings);
     }
 
@@ -50,8 +48,6 @@ public class CefBrowserOsr extends CefBrowser_N implements CefRenderHandler {
                           CefBrowserSettings settings) {
         super(client, url, context, parent, inspectAt, settings);
         isTransparent_ = transparent;
-        renderer_ = new CefRenderer(transparent);
-        createGLCanvas();
     }
 
     @Override
@@ -160,7 +156,7 @@ public class CefBrowserOsr extends CefBrowser_N implements CefRenderHandler {
                         getInspectAt());
             } else {
                 createBrowser(getClient(), windowHandle, getUrl(), true, isTransparent_,
-                        getRequestContext());
+                        null, getRequestContext());
             }
         } else if (hasParent && justCreated_) {
             notifyAfterParentChanged();

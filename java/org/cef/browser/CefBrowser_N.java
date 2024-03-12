@@ -7,12 +7,7 @@ package org.cef.browser;
 import org.cef.CefBrowserSettings;
 import org.cef.CefClient;
 import org.cef.browser.CefDevToolsClient.DevToolsException;
-import org.cef.browser.CefRequestContext;
-import org.cef.callback.CefDragData;
-import org.cef.callback.CefNativeAdapter;
-import org.cef.callback.CefPdfPrintCallback;
-import org.cef.callback.CefRunFileDialogCallback;
-import org.cef.callback.CefStringVisitor;
+import org.cef.callback.*;
 import org.cef.event.CefKeyEvent;
 import org.cef.event.CefMouseEvent;
 import org.cef.event.CefMouseWheelEvent;
@@ -22,16 +17,10 @@ import org.cef.handler.CefRenderHandler;
 import org.cef.handler.CefWindowHandler;
 import org.cef.misc.CefPdfPrintSettings;
 import org.cef.network.CefRequest;
-import java.util.concurrent.CompletableFuture;
 
-import java.awt.Component;
-import java.awt.Point;
-import java.awt.Rectangle;
-import java.awt.Window;
-import java.awt.event.WindowEvent;
+import java.awt.*;
 import java.util.Vector;
-
-import javax.swing.SwingUtilities;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * This class represents all methods which are connected to the
@@ -209,7 +198,7 @@ public abstract class CefBrowser_N extends CefNativeAdapter implements CefBrowse
         if (getNativeRef("CefBrowser") == 0 && !isPending_) {
             try {
                 isPending_ = N_CreateDevTools(
-                        parent, clientHandler, windowHandle, osr, transparent, inspectAt);
+                        parent, clientHandler, windowHandle, osr, transparent, null, inspectAt);
             } catch (UnsatisfiedLinkError err) {
                 err.printStackTrace();
             }
@@ -333,26 +322,6 @@ public abstract class CefBrowser_N extends CefNativeAdapter implements CefBrowse
     public CefFrame getFocusedFrame() {
         try {
             return N_GetFocusedFrame();
-        } catch (UnsatisfiedLinkError ule) {
-            ule.printStackTrace();
-            return null;
-        }
-    }
-
-    @Override
-    public CefFrame getFrame(long identifier) {
-        try {
-            return N_GetFrame(identifier);
-        } catch (UnsatisfiedLinkError ule) {
-            ule.printStackTrace();
-            return null;
-        }
-    }
-
-    @Override
-    public CefFrame getFrame(String name) {
-        try {
-            return N_GetFrame2(name);
         } catch (UnsatisfiedLinkError ule) {
             ule.printStackTrace();
             return null;
@@ -871,9 +840,9 @@ public abstract class CefBrowser_N extends CefNativeAdapter implements CefBrowse
     private final native void N_ReplaceMisspelling(String word);
     private final native void N_WasResized(int width, int height);
     private final native void N_Invalidate();
-    private final native void N_SendKeyEvent(KeyEvent e);
-    private final native void N_SendMouseEvent(MouseEvent e);
-    private final native void N_SendMouseWheelEvent(MouseWheelEvent e);
+    private final native void N_SendKeyEvent(CefKeyEvent e);
+    private final native void N_SendMouseEvent(CefMouseEvent e);
+    private final native void N_SendMouseWheelEvent(CefMouseWheelEvent e);
     private final native void N_DragTargetDragEnter(
             CefDragData dragData, Point pos, int modifiers, int allowed_ops);
     private final native void N_DragTargetDragOver(Point pos, int modifiers, int allowed_ops);

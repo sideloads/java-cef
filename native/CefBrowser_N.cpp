@@ -1050,21 +1050,6 @@ void executeDevToolsMethod(CefRefPtr<CefBrowserHost> host,
 //  }
 //}
 
-jobject NewJNILongVector(JNIEnv* env, const std::vector<int64_t>& vals) {
-  ScopedJNIObjectLocal jvector(env, "java/util/Vector");
-  if (!jvector)
-    return nullptr;
-
-  std::vector<int64_t>::const_iterator iter;
-  for (iter = vals.begin(); iter != vals.end(); ++iter) {
-    ScopedJNIObjectLocal argument(
-        env, NewJNIObject(env, "java/lang/Long", "(J)V", (jlong)*iter));
-    JNI_CALL_VOID_METHOD(env, jvector, "addElement", "(Ljava/lang/Object;)V",
-                         argument.get());
-  }
-  return jvector.Release();
-}
-
 CefPdfPrintSettings GetJNIPdfPrintSettings(JNIEnv* env, jobject obj) {
   CefString tmp;
   CefPdfPrintSettings settings;
@@ -1330,36 +1315,6 @@ Java_org_cef_browser_CefBrowser_1N_N_1GetFocusedFrame(JNIEnv* env,
     return nullptr;
   ScopedJNIFrame jframe(env, frame);
   return jframe.Release();
-}
-
-JNIEXPORT jobject JNICALL
-Java_org_cef_browser_CefBrowser_1N_N_1GetFrame(JNIEnv* env,
-                                               jobject obj,
-                                               jlong identifier) {
-  CefRefPtr<CefBrowser> browser = JNI_GET_BROWSER_OR_RETURN(env, obj, nullptr);
-  CefRefPtr<CefFrame> frame = browser->GetFrame(identifier);
-  if (!frame)
-    return nullptr;
-  ScopedJNIFrame jframe(env, frame);
-  return jframe.Release();
-}
-
-JNIEXPORT jobject JNICALL
-Java_org_cef_browser_CefBrowser_1N_N_1GetFrame2(JNIEnv* env,
-                                                jobject obj,
-                                                jstring name) {
-  CefRefPtr<CefBrowser> browser = JNI_GET_BROWSER_OR_RETURN(env, obj, nullptr);
-  CefRefPtr<CefFrame> frame = browser->GetFrame(GetJNIString(env, name));
-  if (!frame)
-    return nullptr;
-  ScopedJNIFrame jframe(env, frame);
-  return jframe.Release();
-}
-
-JNIEXPORT jint JNICALL
-Java_org_cef_browser_CefBrowser_1N_N_1GetFrameCount(JNIEnv* env, jobject obj) {
-  CefRefPtr<CefBrowser> browser = JNI_GET_BROWSER_OR_RETURN(env, obj, -1);
-  return (jint)browser->GetFrameCount();
 }
 
 JNIEXPORT jobject JNICALL
